@@ -9,6 +9,7 @@ env:
   GODOT_BASE_BRANCH: master
   SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes
   SCONS_CACHE_MSVC_CONFIG: true
+  GH_TOKEN: ${{ github.token }}
 
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-windows
@@ -79,6 +80,8 @@ jobs:
 
       # Clear cache if workflow is from a PR that was just merged
       - name: Evaluate Cache
-        if: github.event_name == 'pull_request' && gh pr view ${{ github.event.pull_request.number }} --json state --jq '.state' == 'MERGED'
+        if: github.event_name == 'pull_request'
         run: |
-          gh cache delete ${{ matrix.cache-name }}-${{env.GODOT_BASE_BRANCH}}-${{github.ref}}-${{github.sha}}
+          if [ gh pr view ${{ github.event.pull_request.number }} --json state --jq '.state' == 'MERGED' ]; then
+            gh cache delete ${{ matrix.cache-name }}-${{env.GODOT_BASE_BRANCH}}-${{github.ref}}-${{github.sha}}
+          fi

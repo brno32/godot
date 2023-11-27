@@ -9,6 +9,7 @@ env:
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no
   EM_VERSION: 3.1.39
   EM_CACHE_FOLDER: "emsdk-cache"
+  GH_TOKEN: ${{ github.token }}
 
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-web
@@ -49,3 +50,12 @@ jobs:
 
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
+
+      # Clear cache if workflow is from a PR that was just merged
+      - name: Evaluate Cache
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ gh pr view ${{ github.event.pull_request.number }} --json state --jq '.state' == 'MERGED' ]; then
+            gh cache delete ${{ matrix.cache-name }}-${{env.GODOT_BASE_BRANCH}}-${{github.ref}}-${{github.sha}}
+          fi
+      # gh cache list --limit 500 --sort created_at --json key --jq '.[].key'
