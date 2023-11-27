@@ -76,3 +76,9 @@ jobs:
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
           ${{ matrix.bin }} --test --force-colors
+
+      # Clear cache if workflow is from a PR that was just merged
+      - name: Evaluate Cache
+        if: github.event_name == 'pull_request' && gh pr view ${{ github.event.pull_request.number }} --json state --jq '.state' == 'MERGED'
+        run: |
+          gh cache delete ${{ matrix.cache-name }}-${{env.GODOT_BASE_BRANCH}}-${{github.ref}}-${{github.sha}}
