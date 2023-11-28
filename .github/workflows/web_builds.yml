@@ -55,7 +55,9 @@ jobs:
       - name: Evaluate Cache
         if: github.event_name == 'pull_request'
         run: |
-          if [ gh pr view ${{ github.event.pull_request.number }} --json state --jq '.state' == 'MERGED' ]; then
-            gh cache delete ${{ matrix.cache-name }}-${{env.GODOT_BASE_BRANCH}}-${{github.ref}}-${{github.sha}}
+          STATE=$(gh pr view ${{ github.event.pull_request.number }} --json state --jq '.state')
+          echo "${STATE}"
+          if [ "${STATE}" == 'MERGED' ]; then
+            gh cache delete ${{github.job}}-${{env.GODOT_BASE_BRANCH}}-${{github.ref}}-${{github.sha}}
           fi
       # gh cache list --limit 500 --sort created_at --json key --jq '.[].key'
