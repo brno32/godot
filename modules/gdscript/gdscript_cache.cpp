@@ -205,15 +205,20 @@ Ref<GDScriptParserRef> GDScriptCache::get_parser(const String &p_path, GDScriptP
 			return ref;
 		}
 	} else {
-		if (!FileAccess::exists(p_path)) {
+		String path = p_path;
+		// resolve uid to physical path
+		if (p_path.begins_with("uid://")) {
+			path = ResourceUID::get_singleton()->get_id_path(ResourceUID::get_singleton()->text_to_id(path));
+		}
+		if (!FileAccess::exists(path)) {
 			r_error = ERR_FILE_NOT_FOUND;
 			return ref;
 		}
 		GDScriptParser *parser = memnew(GDScriptParser);
 		ref.instantiate();
 		ref->parser = parser;
-		ref->path = p_path;
-		singleton->parser_map[p_path] = ref.ptr();
+		ref->path = path;
+		singleton->parser_map[path] = ref.ptr();
 	}
 	r_error = ref->raise_status(p_status);
 

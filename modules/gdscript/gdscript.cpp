@@ -1009,7 +1009,7 @@ String GDScript::get_script_path() const {
 }
 
 Error GDScript::load_source_code(const String &p_path) {
-	if (p_path.is_empty() || p_path.begins_with("gdscript://") || ResourceLoader::get_resource_type(p_path.get_slice("::", 0)) == "PackedScene") {
+	if (p_path.is_empty() || p_path.begins_with("gdscript://") || p_path.begins_with("uid://") || ResourceLoader::get_resource_type(p_path.get_slice("::", 0)) == "PackedScene") {
 		return OK;
 	}
 
